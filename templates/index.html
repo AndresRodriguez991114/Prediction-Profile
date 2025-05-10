@@ -53,7 +53,8 @@
     </form>
 
     {% if prediction is not none %}
-        <h2>Ingreso estimado: <strong>${{ "{:,.0f}".format(prediction) }} COP</strong></h2>
+    <h2>Ingreso estimado: <strong>${{ "{:,.0f}".format(prediction) }} COP</strong></h2>
+    <img src="{{ url_for('static', filename='prediction_plot.png') }}" alt="Gráfica de Predicción" style="margin-top: 20px;">
     {% endif %}
 
     <script>
