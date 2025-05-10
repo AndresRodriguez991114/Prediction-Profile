@@ -2,38 +2,72 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Predicción de Ingresos</title>
+    <title>Predicción de Ingresos en COP</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial;
+            margin-top: 50px;
+        }
+        input, select {
+            padding: 8px;
+            margin: 10px;
+            border-radius: 5px;
+        }
+        .error {
+            border: 2px solid red;
+            box-shadow: 0 0 10px red;
+            animation: blink 05s steps(5, start) infinite;
+        }
+        @keyframes blink {
+            to { visibility: hidden; }
+        }
+    </style>
 </head>
 <body>
-    <h1>💰 Predicción de Ingresos en COP</h1>
-    <form method="POST">
+    <h1>💰 Predicción de Ingresos en Colombia</h1>
+    <form method="POST" onsubmit="return validateForm()">
         <label>Edad:</label><br>
-        <input type="number" name="age" required><br><br>
-        
-        <label>Nivel de Educación (1-16):</label><br>
-        <input type="number" name="education_num" required><br><br>
-        
-        <label>Horas de Trabajo/Semana:</label><br>
-        <input type="number" name="hours" required><br><br>
-        
+        <input type="number" name="age" id="ageInput" required><br>
+
+        <label>Nivel educativo:</label><br>
+        <select name="education_num">
+            <option value="9">Bachillerato</option>
+            <option value="13">Pregrado</option>
+            <option value="15">Especialización</option>
+            <option value="16">Maestría</option>
+            <option value="17">Doctorado</option>
+        </select><br>
+
+        <label>Horas de trabajo a la semana:</label><br>
+        <input type="number" name="hours" required><br>
+
         <label>Sexo:</label><br>
         <select name="sex">
             <option value="Male">Masculino</option>
             <option value="Female">Femenino</option>
-        </select><br><br>
-        
-        <button type="submit">Predecir Ingreso</button>
+        </select><br>
+
+        <button type="submit">Calcular Ingreso Aproximado</button>
     </form>
 
     {% if prediction is not none %}
-        <h2>Resultado: 
-            {% if prediction == 1 %}
-                ¡Ingresos mayores a 200 millones COP! 💸
-            {% else %}
-                Ingresos menores o iguales a 200 millones COP. 📉
-            {% endif %}
-        </h2>
+        <h2>Ingreso estimado: <strong>${{ "{:,.0f}".format(prediction) }} COP</strong></h2>
     {% endif %}
+
+    <script>
+        function validateForm() {
+            let ageInput = document.getElementById("ageInput");
+            if (parseInt(ageInput.value) < 18) {
+                ageInput.classList.add("error");
+                ageInput.value = "";
+                return false;
+            } else {
+                ageInput.classList.remove("error");
+                return true;
+            }
+        }
+    </script>
 </body>
 </html>
