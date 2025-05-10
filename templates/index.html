@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Predicción de Ingresos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Predicción de Ingresos en COP</h1>
+    <form method="POST">
+        Edad: <input type="number" name="age"><br>
+        Nivel Educación (1-16): <input type="number" name="education_num"><br>
+        Horas/Semana: <input type="number" name="hours"><br>
+        Sexo: 
+        <select name="sex">
+            <option value="Male">Masculino</option>
+            <option value="Female">Femenino</option>
+        </select><br>
+        <button type="submit">Predecir</button>
+    </form>
+    {% if prediction is not none %}
+        <h2>Resultado: {{ 'Ingresos > 200 millones COP' if prediction == 1 else 'Ingresos <= 200 millones COP' }}</h2>
+    {% endif %}
+</body>
+</html>
