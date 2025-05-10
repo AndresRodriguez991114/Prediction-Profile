@@ -1,24 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
     <title>Predicción de Ingresos</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Predicción de Ingresos en COP</h1>
+    <h1>💰 Predicción de Ingresos en COP</h1>
     <form method="POST">
-        Edad: <input type="number" name="age"><br>
-        Nivel Educación (1-16): <input type="number" name="education_num"><br>
-        Horas/Semana: <input type="number" name="hours"><br>
-        Sexo: 
+        <label>Edad:</label><br>
+        <input type="number" name="age" required><br><br>
+        
+        <label>Nivel de Educación (1-16):</label><br>
+        <input type="number" name="education_num" required><br><br>
+        
+        <label>Horas de Trabajo/Semana:</label><br>
+        <input type="number" name="hours" required><br><br>
+        
+        <label>Sexo:</label><br>
         <select name="sex">
             <option value="Male">Masculino</option>
             <option value="Female">Femenino</option>
-        </select><br>
-        <button type="submit">Predecir</button>
+        </select><br><br>
+        
+        <button type="submit">Predecir Ingreso</button>
     </form>
+
     {% if prediction is not none %}
-        <h2>Resultado: {{ 'Ingresos > 200 millones COP' if prediction == 1 else 'Ingresos <= 200 millones COP' }}</h2>
+        <h2>Resultado: 
+            {% if prediction == 1 %}
+                ¡Ingresos mayores a 200 millones COP! 💸
+            {% else %}
+                Ingresos menores o iguales a 200 millones COP. 📉
+            {% endif %}
+        </h2>
     {% endif %}
 </body>
 </html>
