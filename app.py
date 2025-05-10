@@ -12,20 +12,32 @@ def index():
     prediction = None
     if request.method == 'POST':
         age = int(request.form['age'])
-        education_num = int(request.form['education_num'])
+        education_input = request.form['education_num']
+        if education_input == "":
+            return render_template('index.html', prediction=None)
+        education_num = int(education_input)
         hours = int(request.form['hours'])
         sex = 1 if request.form['sex'] == 'Male' else 0
 
         features = np.array([[age, education_num, hours, sex]])
         prediction = model.predict(features)[0]
 
-        # Generar gráfica de predicción
+        # Gráfica comparativa
+        average_income = 100_000_000  # Promedio nacional anual (ajustable)
+        categories = ['Promedio Nacional', 'Tu Predicción']
+        values = [average_income, prediction]
+
         fig, ax = plt.subplots()
-        bars = ['Ingreso Aproximado']
-        values = [prediction]
-        ax.bar(bars, values)
+        bars = ax.bar(categories, values, color=['gray', 'green'])
         ax.set_ylabel('Pesos Colombianos')
-        ax.set_title('Resultado de la Predicción')
+        ax.set_title('Comparación de Ingresos')
+
+        for bar in bars:
+            yval = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width()/2.0, yval, f"${int(yval):,}", 
+                    ha='center', va='bottom', fontsize=9)
+
+        plt.tight_layout()
         plt.savefig('static/prediction_plot.png')
         plt.close()
 

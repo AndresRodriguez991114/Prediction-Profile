@@ -12,28 +12,35 @@ columns = ['age', 'workclass', 'fnlwgt', 'education', 'education_num', 'marital_
            'hours_per_week', 'native_country', 'income']
 
 df = pd.read_csv(url, header=None, names=columns, na_values=' ?', skipinitialspace=True)
-df.dropna(inplace=True)  # Eliminar registros con valores nulos
+df.dropna(inplace=True)
 
-# Convertir la columna de ingresos a una cantidad aproximada en COP
-# Si gana >50K USD, asumimos un ingreso promedio de 250 millones COP, si no, 50 millones COP
-df['income_amount'] = df['income'].apply(lambda x: 250_000_000 if x.strip() == '>50K' else 50_000_000)
+# Ajustar ingresos estimados según nivel educativo
+education_income = {
+    9: 50_000_000,    # Bachillerato
+    13: 100_000_000,  # Pregrado
+    15: 150_000_000,  # Especialización
+    16: 200_000_000,  # Maestría
+    17: 250_000_000   # Doctorado
+}
+# Si no está en el mapa, asigna ingreso base de 50M
+df['income_amount'] = df['education_num'].map(education_income).fillna(50_000_000)
 
-# Selección de variables importantes
+# Variables de entrada y salida
 X = df[['age', 'education_num', 'hours_per_week', 'sex']]
 y = df['income_amount']
 
-# Codificación de la variable 'sex'
+# Codificar variable categórica 'sex'
 le = LabelEncoder()
 X.loc[:, 'sex'] = le.fit_transform(X['sex'])
 
-# División en conjunto de entrenamiento y prueba
+# Dividir dataset en entrenamiento y prueba
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Entrenamiento del modelo con Random Forest Regressor (predicción de cantidad)
+# Entrenar modelo de regresión
 model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-# Guardar el modelo entrenado
+# Guardar modelo entrenado
 with open('model/income_model.pkl', 'wb') as f:
     pickle.dump(model, f)
 

@@ -2,26 +2,45 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Predicción de Ingresos en COP</title>
+    <title>Predicción de Ingresos en Colombia</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
         body {
             text-align: center;
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             margin-top: 50px;
+            background-color: #f4f4f4;
+        }
+        form {
+            background: #fff;
+            display: inline-block;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
         }
         input, select {
             padding: 8px;
             margin: 10px;
             border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        h1, h2 {
+            color: #333;
         }
         .error {
             border: 2px solid red;
             box-shadow: 0 0 10px red;
-            animation: blink 05s steps(5, start) infinite;
-        }
-        @keyframes blink {
-            to { visibility: hidden; }
         }
     </style>
 </head>
@@ -29,10 +48,13 @@
     <h1>💰 Predicción de Ingresos en Colombia</h1>
     <form method="POST" onsubmit="return validateForm()">
         <label>Edad:</label><br>
-        <input type="number" name="age" id="ageInput" required><br>
-
+<input type="number" name="age" id="ageInput"><br>
+<div id="tooltip" style="display:none; color: white; background-color: red; padding: 5px 10px; border-radius: 5px; position: absolute; z-index: 10;">
+    * La edad debe ser mayor o igual a 18 años.
+</div><br>
         <label>Nivel educativo:</label><br>
-        <select name="education_num">
+        <select name="education_num" required>
+            <option value="">--Selecciona--</option>
             <option value="9">Bachillerato</option>
             <option value="13">Pregrado</option>
             <option value="15">Especialización</option>
@@ -53,22 +75,47 @@
     </form>
 
     {% if prediction is not none %}
-    <h2>Ingreso estimado: <strong>${{ "{:,.0f}".format(prediction) }} COP</strong></h2>
-    <img src="{{ url_for('static', filename='prediction_plot.png') }}" alt="Gráfica de Predicción" style="margin-top: 20px;">
+        <h2>Ingreso estimado anual: <strong>${{ "{:,.0f}".format(prediction) }} COP</strong></h2>
+        <p><em>Este cálculo es un valor anual aproximado en pesos colombianos.</em></p>
+        <img src="{{ url_for('static', filename='prediction_plot.png') }}" alt="Gráfica de Predicción" style="margin-top: 20px;">
     {% endif %}
 
     <script>
         function validateForm() {
-            let ageInput = document.getElementById("ageInput");
+            const ageInput = document.getElementById("ageInput");
+            const ageError = document.getElementById("ageError");
             if (parseInt(ageInput.value) < 18) {
                 ageInput.classList.add("error");
+                ageError.style.display = "inline";
                 ageInput.value = "";
+
+                setTimeout(() => {
+                    ageInput.classList.remove("error");
+                    ageError.style.display = "none";
+                }, 5000); // Mantener mensaje y sombra roja por 5s
+
                 return false;
             } else {
-                ageInput.classList.remove("error");
-                return true;
+                ageError.style.display = "none";
             }
+            return true;
         }
     </script>
+    <script>
+    function showTooltip() {
+        const tooltip = document.getElementById("tooltip");
+        const ageInput = document.getElementById("ageInput");
+        const rect = ageInput.getBoundingClientRect();
+        tooltip.style.top = (rect.top - 40) + "px";
+        tooltip.style.left = (rect.left + rect.width / 2 - 80) + "px";
+        tooltip.style.position = "fixed";
+        tooltip.style.display = "block";
+    }
+
+    function hideTooltip() {
+        document.getElementById("tooltip").style.display = "none";
+    }
+</script>
+
 </body>
 </html>
