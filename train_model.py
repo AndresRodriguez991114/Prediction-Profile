@@ -48,4 +48,4 @@ model.fit(X_train, y_train)
 with open('model/income_model.pkl', 'wb') as f:
     pickle.dump(model, f)
 
-print("✅ Modelo entrenado y guardado como 'income_model.pkl'")
+print(" Modelo entrenado y guardado como 'income_model.pkl'")
