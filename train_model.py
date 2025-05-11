@@ -16,14 +16,14 @@ df.dropna(inplace=True)
 
 # Ajustar ingresos estimados según nivel educativo
 education_income = {
-    9: 50_000_000,    # Bachillerato
-    13: 100_000_000,  # Pregrado
-    15: 150_000_000,  # Especialización
-    16: 200_000_000,  # Maestría
-    17: 250_000_000   # Doctorado
+    9: 18_115_440,     # Bachillerato (ingreso anual mínimo)
+    13: 36_000_000,    # Pregrado (estimado anual ~3 millones/mes)
+    15: 60_000_000,    # Especialización (~5 millones/mes)
+    16: 84_000_000,    # Maestría (~7 millones/mes)
+    17: 120_000_000    # Doctorado (~10 millones/mes)
 }
-# Si no está en el mapa, asigna ingreso base de 50M
-df['income_amount'] = df['education_num'].map(education_income).fillna(50_000_000)
+# Si no está en el mapa, asigna ingreso base de 12 SMLV
+df['income_amount'] = df['education_num'].map(education_income).fillna(18_115_440)
 
 # Variables de entrada y salida
 X = df[['age', 'education_num', 'hours_per_week', 'sex']]
