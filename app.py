@@ -55,7 +55,7 @@ def index():
         prediction = model.predict(features)[0]
 
         # Gráfica comparativa
-        average_income = 100_000_000  # Promedio nacional anual (ajustable)
+        average_income = 20_000_000  # Promedio nacional anual (ajustable)
         categories = ['Promedio Nacional', 'Tu Predicción']
         values = [average_income, prediction]
 
