@@ -8,11 +8,19 @@ import os
 #  Cargar los datasets
 caracteristicas_path = 'model/CSV/Características generales, seguridad social en salud y educación.CSV'
 ocupados_path = 'model/CSV/Ocupados.CSV'
-Fuerza_de_trabajo_path = 'model/CSV/Fuerza de trabajo.CSV'
+Fuerza_trabajo_path = 'model/CSV/Fuerza de trabajo.CSV'
 
-caracteristicas = pd.read_csv(caracteristicas_path, sep=';', encoding='latin1')
-ocupados = pd.read_csv(ocupados_path, sep=';', encoding='latin1')
-Fuerza_de_trabajo = pd.read_csv(Fuerza_de_trabajo_path, sep=';', encoding='latin1')
+caracteristicas = pd.read_csv(caracteristicas_path, sep=';', encoding='latin1', low_memory=False)
+ocupados = pd.read_csv(ocupados_path, sep=';', encoding='latin1', low_memory=False)
+Fuerza_trabajo = pd.read_csv(Fuerza_trabajo_path, sep=';', encoding='latin1', low_memory=False)
+
+# Validar duplicados en las claves de unión
+def verificar_duplicados(df, nombre):
+    duplicados = df.duplicated(subset=['DIRECTORIO', 'SECUENCIA_P', 'ORDEN']).sum()
+    print(f"Duplicados en '{nombre}': {duplicados}")
+
+verificar_duplicados(ocupados, 'ocupados')
+verificar_duplicados(Fuerza_trabajo, 'fuerza_trabajo')
 
 #  Unir datasets
 df = caracteristicas.merge(
@@ -20,6 +28,16 @@ df = caracteristicas.merge(
     on=['DIRECTORIO', 'SECUENCIA_P', 'ORDEN'],
     how='inner'
 )
+
+df = df.merge(
+    Fuerza_trabajo[['DIRECTORIO', 'SECUENCIA_P', 'ORDEN']],  # Agrega aquí las columnas de interés de fuerza_trabajo
+    on=['DIRECTORIO', 'SECUENCIA_P', 'ORDEN'], 
+    how='inner'
+)
+
+# Validar columnas disponibles
+print("Columnas disponibles en el DataFrame final:")
+print(df.columns)
 
 #  Filtrar variables de interés
 columns_needed = ['P6040', 'P6080', 'INGLABO']  # Edad, Educación, Ingreso
@@ -52,4 +70,4 @@ if not os.path.exists(output_dir):
 with open(os.path.join(output_dir, 'income_model.pkl'), 'wb') as f:
     pickle.dump(model, f)
 
-print(" Modelo entrenado y guardado como 'income_model.pkl'")
+print("✅ Modelo entrenado y guardado como 'income_model.pkl'")
