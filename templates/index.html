@@ -42,16 +42,30 @@
             border: 2px solid red;
             box-shadow: 0 0 10px red;
         }
+        #tooltip {
+            display: none;
+            color: white;
+            background-color: red;
+            padding: 5px 10px;
+            border-radius: 5px;
+            position: absolute;
+            z-index: 10;
+            font-size: 14px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
     <h1>💰 Predicción de Ingresos en Colombia</h1>
     <form method="POST" onsubmit="return validateForm()">
         <label>Edad:</label><br>
-<input type="number" name="age" id="ageInput"><br>
-<div id="tooltip" style="display:none; color: white; background-color: red; padding: 5px 10px; border-radius: 5px; position: absolute; z-index: 10;">
-    * La edad debe ser mayor o igual a 18 años.
-</div><br>
+        <input type="number" name="age" id="ageInput"><br>
+        <div id="tooltip">* La edad debe ser mayor o igual a 18 años.</div><br>
+
         <label>Nivel educativo:</label><br>
         <select name="education_num" required>
             <option value="">--Selecciona--</option>
@@ -63,7 +77,10 @@
         </select><br>
 
         <label>Horas de trabajo a la semana:</label><br>
-        <input type="number" name="hours" required><br>
+        <input type="number" name="hours" id="hoursInput" required><br>
+        <div id="hoursTooltip" style="display:none; color: white; background-color: red; padding: 5px 10px; border-radius: 5px; position: absolute; z-index: 10;">
+            * El valor debe ser mayor o igual a 0.
+        </div><br>
 
         <label>Sexo:</label><br>
         <select name="sex">
@@ -83,39 +100,54 @@
     <script>
         function validateForm() {
             const ageInput = document.getElementById("ageInput");
-            const ageError = document.getElementById("ageError");
-            if (parseInt(ageInput.value) < 18) {
+            const ageTooltip = document.getElementById("tooltip");
+            const hoursInput = document.getElementById("hoursInput");
+            const hoursTooltip = document.getElementById("hoursTooltip");
+
+            const age = parseInt(ageInput.value);
+            const hours = parseInt(hoursInput.value);
+
+            // Validación de Edad
+            if (isNaN(age) || age < 18) {
+                const rect = ageInput.getBoundingClientRect();
+                ageTooltip.style.top = (rect.top - 40) + "px";
+                ageTooltip.style.left = (rect.left + rect.width / 2 - 150) + "px";
+                ageTooltip.style.position = "fixed";
+                ageTooltip.style.display = "block";
                 ageInput.classList.add("error");
-                ageError.style.display = "inline";
                 ageInput.value = "";
 
                 setTimeout(() => {
+                    ageTooltip.style.display = "none";
                     ageInput.classList.remove("error");
-                    ageError.style.display = "none";
-                }, 5000); // Mantener mensaje y sombra roja por 5s
+                }, 5000);
 
                 return false;
-            } else {
-                ageError.style.display = "none";
             }
+
+            // Validación de Horas
+            if (isNaN(hours) || hours < 0) {
+                const rect = hoursInput.getBoundingClientRect();
+                hoursTooltip.style.top = (rect.top - 40) + "px";
+                hoursTooltip.style.left = (rect.left + rect.width / 2 - 150) + "px";
+                hoursTooltip.style.position = "fixed";
+                hoursTooltip.style.display = "block";
+                hoursInput.classList.add("error");
+                hoursInput.value = "";
+
+                setTimeout(() => {
+                    hoursTooltip.style.display = "none";
+                    hoursInput.classList.remove("error");
+                }, 5000);
+
+                return false;
+            }
+
+            // Si todo está bien, ocultar tooltips
+            ageTooltip.style.display = "none";
+            hoursTooltip.style.display = "none";
             return true;
         }
     </script>
-    <script>
-    function showTooltip() {
-        const tooltip = document.getElementById("tooltip");
-        const ageInput = document.getElementById("ageInput");
-        const rect = ageInput.getBoundingClientRect();
-        tooltip.style.top = (rect.top - 40) + "px";
-        tooltip.style.left = (rect.left + rect.width / 2 - 80) + "px";
-        tooltip.style.position = "fixed";
-        tooltip.style.display = "block";
-    }
-
-    function hideTooltip() {
-        document.getElementById("tooltip").style.display = "none";
-    }
-</script>
-
 </body>
 </html>
