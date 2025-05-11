@@ -60,10 +60,10 @@
     </style>
 </head>
 <body>
-    <h1>
-    <img src="{{ url_for('static', filename='colombia_flag.png') }}" alt="Bandera de Colombia" style="width: 40px; vertical-align: middle;">
-    Predicción de Ingresos en Colombia
-    </h1>
+    <div style="text-align: center; margin-top: 20px;"></div>
+    <img src="{{ url_for('static', filename='colombia_flag.png') }}" alt="Bandera de Colombia" style="width: 50px; vertical-align: middle;">
+    <h1 style="font-family: Arial, sans-serif; color: #333;">Predicción de Ingresos en Colombia</h1>
+    </div>
     <form method="POST" onsubmit="return validateForm()">
         <label>Edad:</label><br>
         <input type="number" name="age" id="ageInput"><br>
