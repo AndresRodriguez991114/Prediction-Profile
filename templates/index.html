@@ -60,7 +60,10 @@
     </style>
 </head>
 <body>
-    <h1>💰 Predicción de Ingresos en Colombia</h1>
+    <h1>
+    <img src="{{ url_for('static', filename='colombia_flag.png') }}" alt="Bandera de Colombia" style="width: 40px; vertical-align: middle;">
+    Predicción de Ingresos en Colombia
+    </h1>
     <form method="POST" onsubmit="return validateForm()">
         <label>Edad:</label><br>
         <input type="number" name="age" id="ageInput"><br>
@@ -95,8 +98,12 @@
         <h2>Ingreso estimado anual: <strong>${{ "{:,.0f}".format(prediction) }} COP</strong></h2>
         <p><em>Este cálculo es un valor anual aproximado en pesos colombianos.</em></p>
         <img src="{{ url_for('static', filename='prediction_plot.png') }}" alt="Gráfica de Predicción" style="margin-top: 20px;">
-    {% endif %}
+        <img src="{{ url_for('static', filename='education_plot.png') }}" alt="Distribución de Ingresos" style="margin-top: 20px;">
 
+    {% endif %}
+<footer style="margin-top: 50px; color: #777;">
+    Desarrollado por Andrés Rodríguez | Ingeniería en Sistemas © 2025
+</footer>
     <script>
         function validateForm() {
             const ageInput = document.getElementById("ageInput");
