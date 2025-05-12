@@ -84,7 +84,7 @@ def index():
         hours = int(request.form['hours'])
 
         features = pd.DataFrame([[age, education_num, hours]], columns=['age', 'education_num', 'hours_per_week'])
-        prediction = model.predict(features)[0]
+        prediction = model.predict(features)[0] * 12 
 
         # Gráfica comparativa
         average_income = 25_000_000  # Promedio anual 

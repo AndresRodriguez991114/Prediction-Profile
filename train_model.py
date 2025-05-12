@@ -5,64 +5,54 @@ from sklearn.ensemble import RandomForestRegressor
 import pickle
 import os
 
-#  Cargar los datasets
+# ✅ Cargar los datasets
 caracteristicas_path = 'model/CSV/Características generales, seguridad social en salud y educación.CSV'
 ocupados_path = 'model/CSV/Ocupados.CSV'
-Fuerza_trabajo_path = 'model/CSV/Fuerza de trabajo.CSV'
+fuerza_trabajo_path = 'model/CSV/Fuerza de trabajo.CSV'
 
-caracteristicas = pd.read_csv(caracteristicas_path, sep=';', encoding='latin1', low_memory=False)
-ocupados = pd.read_csv(ocupados_path, sep=';', encoding='latin1', low_memory=False)
-Fuerza_trabajo = pd.read_csv(Fuerza_trabajo_path, sep=';', encoding='latin1', low_memory=False)
+caracteristicas = pd.read_csv(caracteristicas_path, sep=';', encoding='latin1')
+ocupados = pd.read_csv(ocupados_path, sep=';', encoding='latin1')
+fuerza_trabajo = pd.read_csv(fuerza_trabajo_path, sep=';', encoding='latin1')
 
-# Validar duplicados en las claves de unión
-def verificar_duplicados(df, nombre):
-    duplicados = df.duplicated(subset=['DIRECTORIO', 'SECUENCIA_P', 'ORDEN']).sum()
-    print(f"Duplicados en '{nombre}': {duplicados}")
-
-verificar_duplicados(ocupados, 'ocupados')
-verificar_duplicados(Fuerza_trabajo, 'fuerza_trabajo')
-
-#  Unir datasets
+# Unir datasets usando las claves comunes
 df = caracteristicas.merge(
     ocupados[['DIRECTORIO', 'SECUENCIA_P', 'ORDEN', 'INGLABO']],
     on=['DIRECTORIO', 'SECUENCIA_P', 'ORDEN'],
     how='inner'
+).merge(
+    fuerza_trabajo[['DIRECTORIO', 'SECUENCIA_P', 'ORDEN', 'P6240']],  # P6240: Horas trabajadas reales
+    on=['DIRECTORIO', 'SECUENCIA_P', 'ORDEN'],
+    how='left'
 )
 
-df = df.merge(
-    Fuerza_trabajo[['DIRECTORIO', 'SECUENCIA_P', 'ORDEN']],  # Agrega aquí las columnas de interés de fuerza_trabajo
-    on=['DIRECTORIO', 'SECUENCIA_P', 'ORDEN'], 
-    how='inner'
-)
-
-# Validar columnas disponibles
-print("Columnas disponibles en el DataFrame final:")
-print(df.columns)
-
-#  Filtrar variables de interés
-columns_needed = ['P6040', 'P6080', 'INGLABO']  # Edad, Educación, Ingreso
+# Filtrar variables de interés
+columns_needed = ['P6040', 'P6080', 'P6240', 'INGLABO']  # Edad, Educación, Horas Trabajadas, Ingreso
 df = df[columns_needed]
 df.dropna(inplace=True)
 df = df[df['INGLABO'] > 0]
 
-#  Renombrar columnas
-df.columns = ['age', 'education_num', 'income_amount']
+# Renombrar columnas
+df.columns = ['age', 'education_num', 'hours_per_week', 'income_amount']
 
-#  Agregar 'hours_per_week' asumido como promedio de 40 horas
-df['hours_per_week'] = 40
+# Asegurar que las horas de trabajo sean numéricas y razonables
+df['hours_per_week'] = pd.to_numeric(df['hours_per_week'], errors='coerce').fillna(40).clip(upper=80)
 
-#  Variables de entrada y salida
+# Ingeniería de características: Ajuste de pesos para balancear la importancia
+df['education_num'] = df['education_num'] * 3
+df['hours_per_week'] = df['hours_per_week'] * 3 
+
+# Variables de entrada y salida
 X = df[['age', 'education_num', 'hours_per_week']]
 y = df['income_amount']
 
-#  División de datos
+# División de datos
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-#  Entrenar modelo
+# Entrenar el modelo
 model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-#  Guardar el modelo
+# Guardar el modelo
 output_dir = 'model'
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
@@ -71,3 +61,11 @@ with open(os.path.join(output_dir, 'income_model.pkl'), 'wb') as f:
     pickle.dump(model, f)
 
 print("✅ Modelo entrenado y guardado como 'income_model.pkl'")
+
+# Mostrar la nueva importancia de las variables
+importances = model.feature_importances_
+feature_names = ['age', 'education_num', 'hours_per_week']
+
+print("\n Importancia de las Variables en el Modelo:")
+for name, importance in zip(feature_names, importances):
+    print(f"{name}: {importance:.4f}")
